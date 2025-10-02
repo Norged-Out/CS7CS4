@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+
 
 def make_plot_1A(X, y):
     # Plot +1 points
@@ -18,49 +20,56 @@ def make_plot_1A(X, y):
     plt.show()
 
 def train_log_regr(X, y):
+    print("Splitting data into 70:30 for training and testing")
+    # split the data into training and testing data
+    X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.3, random_state=40)
+
     # Create and train model
     model = LogisticRegression()
-    model.fit(X, y)
+    model.fit(X_train, Y_train)
     
-    b0 = model.intercept_
-    b1 = model.coef_[0, 0]
-    b2 = model.coef_[0, 1]
+    intercept = model.intercept_
+    theta1 = model.coef_[0, 0]
+    theta2 = model.coef_[0, 1]
+
+    accuracy = model.score(X_test, Y_test)
 
     # Print model parameters
-    print("Feature coefficients: X1 =", b1, ", X2 =", b2)  # b1, b2
-    print("Intercept:", b0)        # b0
+    print("Feature coefficients: X1 =", theta1, ", X2 =", theta2)  # theta1, theta2
+    print("Intercept:", intercept)        # theta0
+    print("Accuracy on test set:", accuracy)
     
-    make_predictions(b1, b2)
+    make_predictions(theta1, theta2)
 
     return model
 
-def make_predictions(b1, b2):
+def make_predictions(theta1, theta2):
      # Interpretation
     print("\nInterpretation:")
-    if b1 > 0:
+    if theta1 > 0:
         print("- Feature X1 increases the probability of predicting +1")
-    elif b1 < 0:
+    elif theta1 < 0:
         print("- Feature X1 decreases the probability of predicting +1")
     else:
         print("- Feature X1 has no influence")
 
-    if b2 > 0:
+    if theta2 > 0:
         print("- Feature X2 increases the probability of predicting +1")
-    elif b2 < 0:
+    elif theta2 < 0:
         print("- Feature X2 decreases the probability of predicting +1")
     else:
         print("- Feature X2 has no influence")
     
     # Most influential feature
-    if abs(b1) > abs(b2):
+    if abs(theta1) > abs(theta2):
         print("\nFeature X1 has the most influence on prediction")
     else:
         print("\nFeature X2 has the most influence on prediction")
 
 def make_plot_with_predictions(X, y, model):
-    b0 = model.intercept_[0]
-    b1 = model.coef_[0, 0]
-    b2 = model.coef_[0, 1]
+    intercept = model.intercept_[0]
+    theta1 = model.coef_[0, 0]
+    theta2 = model.coef_[0, 1]
 
     plt.figure(figsize=(7,6))  # larger figure
 
@@ -70,12 +79,12 @@ def make_plot_with_predictions(X, y, model):
 
     # Predicted points
     y_pred = model.predict(X)
-    plt.scatter(X[y_pred == 1, 0], X[y_pred == 1, 1], marker='x', color='red', label='Predicted +1')
-    plt.scatter(X[y_pred == -1, 0], X[y_pred == -1, 1], marker='s', facecolors='none', edgecolors='orange', label='Predicted -1')
+    plt.scatter(X[y_pred == 1, 0], X[y_pred == 1, 1], marker='s', alpha=0.6, facecolors='none', edgecolors='red', label='Predicted +1')
+    plt.scatter(X[y_pred == -1, 0], X[y_pred == -1, 1], marker='s', alpha=0.6, facecolors='none', edgecolors='orange', label='Predicted -1')
 
-    # Decision boundary: X2 = -(b0 + b1*X1)/b2
+    # Decision boundary: X2 = -(theta0 + theta1*X1)/theta2
     x_values = np.linspace(X[:,0].min() - 0.5, X[:,0].max() + 0.5, 100)
-    y_values = -(b0 + b1*x_values)/b2
+    y_values = -(intercept + theta1*x_values)/theta2
     plt.plot(x_values, y_values, 'k--', label='Decision boundary')
 
     plt.xlabel("X_1")
