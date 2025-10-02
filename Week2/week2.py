@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 
 
 def make_plot_1A(X, y):    
@@ -32,9 +33,9 @@ def train_log_regr(X, y):
     accuracy = model.score(X, y)
 
     # Print model parameters
-    print("Feature coefficients: X1 =", theta1, ", X2 =", theta2)  # theta1, theta2
-    print("Intercept:", intercept)        # theta0
-    print("Accuracy of model on full dataset:", accuracy)
+    print(f"Feature coefficients: X1 = {theta1}, X2 = {theta2}")  # theta1, theta2
+    print(f"Intercept: {intercept}")        # theta0
+    print(f"Accuracy of model on full dataset: {accuracy}")
     
     make_predictions(theta1, theta2)
 
@@ -90,11 +91,66 @@ def make_plot_with_predictions(X, y, model):
     plt.legend()
     plt.show()
 
+def train_linear_svm(X, y):
+    C_values = [0.001, 0.01, 0.1, 1, 10, 100]
+    models = {}
+
+    # Print header for the table
+    print(f"{'C':>8} | {'weight_X1':>10} | {'weight_x2':>10} | {'bias':>10} | {'accuracy':>10}")
+    print("-"*60)
+
+    for C in C_values:
+        model = LinearSVC(C=C, max_iter=10000)
+        model.fit(X, y)
+
+        # Extract model parameters using your symbols
+        weight_X1 = model.coef_[0, 0]  # weight for X1
+        weight_x2 = model.coef_[0, 1]  # weight for X2
+        bias = model.intercept_[0]     # bias term
+        acc = model.score(X, y)        # accuracy on training data
+
+        # Print parameters in tabulated format
+        print(f"{C:8.3f} | {weight_X1:10.4f} | {weight_x2:10.4f} | {bias:10.4f} | {acc:10.3f}")
+
+        models[C] = model
+
+    return models
+
+def plot_svm_predictions(X, y, svm_models):
+
+    for C, model in svm_models.items():
+        weight_X1 = model.coef_[0, 0]
+        weight_x2 = model.coef_[0, 1]
+        bias = model.intercept_[0]
+
+        plt.figure(figsize=(7,6))
+
+        # Original data points
+        plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='+', color='green', label='Actual +1')
+        plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', facecolors='none', edgecolors='blue', label='Actual -1')
+
+        # Predicted points
+        y_pred = model.predict(X)
+        plt.scatter(X[y_pred == 1, 0], X[y_pred == 1, 1], marker='s', s=20, alpha=0.6, facecolors='none', edgecolors='red', label='Predicted +1')
+        plt.scatter(X[y_pred == -1, 0], X[y_pred == -1, 1], marker='s', s=20, alpha=0.6, facecolors='none', edgecolors='orange', label='Predicted -1')
+
+        # Decision boundary: X2 = -(bias + weight_X1*X1)/weight_x2
+        x_vals = np.linspace(X[:,0].min() - 0.5, X[:,0].max() + 0.5, 100)
+        y_vals = -(bias + weight_X1 * x_vals) / weight_x2
+        plt.plot(x_vals, y_vals, 'k--', label='Decision boundary')
+
+        plt.xlabel("X_1")
+        plt.ylabel("X_2")
+        plt.title(f"Linear SVM Predictions (C={C})")
+        plt.legend()
+        plt.show()
+
+
 
 def main():
-
     # path for csv file
-    csv_path = "C:\\Users\\Pri\\Documents\\GitHub\\CS7CS4\\Week2\\week2.csv"
+    #csv_path = "C:\\Users\\Pri\\Documents\\GitHub\\CS7CS4\\Week2\\week2.csv"
+    csv_path = "Week2/week2.csv"
 
     # Load CSV, skip comment line, no header
     df = pd.read_csv(csv_path, comment="#", header=None)
@@ -107,12 +163,16 @@ def main():
     y = df.iloc[:, 2] # third column as labels
 
     make_plot_1A(X, y)
-    print("Splitting data into 70:30 for training and testing")
+    #print("Splitting data into 70:30 for training and testing")
     # split the data into training and testing data
     # X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.3, random_state=40)
 
-    model = train_log_regr(X, y)
-    make_plot_with_predictions(X, y, model)
+    log_model = train_log_regr(X, y)
+    make_plot_with_predictions(X, y, log_model)
+
+    #train SVM
+    svm_models = train_linear_svm(X, y)
+    plot_svm_predictions(X, y, svm_models)
 
 
 main()
