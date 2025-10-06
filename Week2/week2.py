@@ -151,6 +151,7 @@ def main():
     # path for csv file
     #csv_path = "C:\\Users\\Pri\\Documents\\GitHub\\CS7CS4\\Week2\\week2.csv"
     csv_path = "Week2/week2.csv"
+    print("test")
 
     # Load CSV, skip comment line, no header
     df = pd.read_csv(csv_path, comment="#", header=None)
