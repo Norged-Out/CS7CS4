@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-#from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
@@ -20,8 +19,8 @@ def plot_given_data(X, Y):
     plt.title("Dataset Visualization")
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.tight_layout()
-    #plt.show()
-    plt.savefig("Week2/given_data.png")
+    plt.show()
+    #plt.savefig("Week2/given_data.png")
 
 
 def train_log_regr(X, Y):  
@@ -89,8 +88,8 @@ def plot_log_regr_predictions(X, Y, model):
     plt.title("Training Data and Logistic Regression Predictions")
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.tight_layout()
-    #plt.show()
-    plt.savefig("Week2/logistic_regression_predictions.png")
+    plt.show()
+    #plt.savefig("Week2/logistic_regression_predictions.png")
 
 def train_linear_svm(X, Y):
     C_values = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
@@ -115,7 +114,7 @@ def train_linear_svm(X, Y):
         print(f"{C:8.3f} | {weight_X1:10.5f} | {weight_X2:10.5f} | {bias:10.5f} | {acc:10.5f}")
 
         models[C] = model
-    print('\n\n')
+    print('\n')
 
     return models
 
@@ -151,8 +150,8 @@ def plot_svm_predictions(X, Y, svm_models):
         plt.title(f"Linear SVM Predictions (C={C})")
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.tight_layout()
-        #plt.show()
-        plt.savefig(f"Week2/svm_predictions_C_{C}.png")
+        plt.show()
+        #plt.savefig(f"Week2/svm_predictions_C_{C}.png")
 
 def train_log_regr_with_sq(X_sq, Y):
 
@@ -217,8 +216,8 @@ def plot_sq_predictions(X, Y, X_sq, model):
     plt.title("Logistic Regression Predictions with Added Squared Features")
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.tight_layout()
-    #plt.show()
-    plt.savefig("Week2/logistic_regression_sq_predictions.png")
+    plt.show()
+    #plt.savefig("Week2/logistic_regression_sq_predictions.png")
 
 def baseline_accuracy(Y):
     most_common = np.sign((Y == 1).sum() - (Y == -1).sum()) # +1 if more +1s, -1 if more -1s
