@@ -6,33 +6,35 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
 
-def make_plot_1A(X, y):    
+def plot_given_data(X, Y):    
     plt.figure(figsize=(7,6))  # larger figure  
     # Plot +1 points
-    plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='green', alpha=0.7, label='+1')
+    plt.scatter(X[Y == 1, 0], X[Y == 1, 1], marker='o', color='cyan', alpha=0.7, label='+1')
 
     # Plot -1 points
-    plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='blue', alpha=0.7, label='-1')
+    plt.scatter(X[Y == -1, 0], X[Y == -1, 1], marker='o', color='orange', alpha=0.7, label='-1')
 
     # Labels, title, legend
     plt.xlabel("X_1")
     plt.ylabel("X_2")
-    plt.title("1A")
-    plt.legend()
-    plt.show()
+    plt.title("Dataset Visualization")
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.tight_layout()
+    #plt.show()
+    plt.savefig("Week2/given_data.png")
 
 
-def train_log_regr(X, y):  
+def train_log_regr(X, Y):  
     # Create and train model
     model = LogisticRegression()
-    model.fit(X, y)
-    
+    model.fit(X, Y)
+
     # relevent parameters
     intercept = model.intercept_[0]
     thetas = model.coef_[0]
     theta_str = ", ".join(f"X{i+1} = {np.round(theta, 5)}" for i, theta in enumerate(thetas))
 
-    accuracy = model.score(X, y)
+    accuracy = model.score(X, Y)
 
     # Print model parameters
     print(f"Feature coefficients: {theta_str}")  # theta1, theta2
@@ -58,22 +60,22 @@ def make_predictions(thetas):
     most_influential = np.argmax(np.abs(thetas))  # index of largest |theta|
     print(f"\nFeature X{most_influential+1} has the most influence on prediction")
 
-def plot_log_regr_predictions(X, y, model):
+def plot_log_regr_predictions(X, Y, model):
     intercept = model.intercept_[0]
     thetas = model.coef_[0]
     theta1 = thetas[0]
     theta2 = thetas[1]
 
-    plt.figure(figsize=(7,6))  # larger figure
+    plt.figure(figsize=(8,6))  # larger figure
 
     # Original data points
-    plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='green', alpha=0.7, label='Actual +1')
-    plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='blue', alpha=0.7, label='Actual -1')
+    plt.scatter(X[Y == 1, 0], X[Y == 1, 1], marker='o', color='cyan', alpha=0.7, label='Actual +1')
+    plt.scatter(X[Y == -1, 0], X[Y == -1, 1], marker='o', color='orange', alpha=0.7, label='Actual -1')
 
     # Predicted points
-    y_pred = model.predict(X)
-    plt.scatter(X[y_pred == 1, 0], X[y_pred == 1, 1], marker='+', color='red', alpha=0.5, linewidths=1.5, label='Predicted +1')
-    plt.scatter(X[y_pred == -1, 0], X[y_pred == -1, 1], marker='x', color='orange', alpha=0.8, linewidths=1, label='Predicted -1')
+    Y_pred = model.predict(X)
+    plt.scatter(X[Y_pred == 1, 0], X[Y_pred == 1, 1], marker='+', color='red', alpha=0.6, linewidths=1.5, label='Predicted +1')
+    plt.scatter(X[Y_pred == -1, 0], X[Y_pred == -1, 1], marker='x', color='green', alpha=0.7, linewidths=1, label='Predicted -1')
 
     # Decision boundary: X2 = -(theta0 + theta1*X1)/theta2
     x_min, x_max = X[:,0].min(), X[:,0].max()
@@ -85,10 +87,12 @@ def plot_log_regr_predictions(X, y, model):
     plt.xlabel("X_1")
     plt.ylabel("X_2")
     plt.title("Training Data and Logistic Regression Predictions")
-    plt.legend()
-    plt.show()
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.tight_layout()
+    #plt.show()
+    plt.savefig("Week2/logistic_regression_predictions.png")
 
-def train_linear_svm(X, y):
+def train_linear_svm(X, Y):
     C_values = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
     models = {}
 
@@ -98,14 +102,14 @@ def train_linear_svm(X, y):
 
     for C in C_values:
         model = LinearSVC(C=C, max_iter=10000)
-        model.fit(X, y)
+        model.fit(X, Y)
 
         # Extract model parameters
         weights = model.coef_[0]
         weight_X1 = weights[0]  # weight for X1
         weight_X2 = weights[1]  # weight for X2
         bias = model.intercept_[0]     # bias term
-        acc = model.score(X, y)        # accuracy on training data
+        acc = model.score(X, Y)        # accuracy on training data
 
         # Print parameters in tabulated format
         print(f"{C:8.3f} | {weight_X1:10.5f} | {weight_X2:10.5f} | {bias:10.5f} | {acc:10.5f}")
@@ -115,7 +119,7 @@ def train_linear_svm(X, y):
 
     return models
 
-def plot_svm_predictions(X, y, svm_models):
+def plot_svm_predictions(X, Y, svm_models):
 
     for C, model in svm_models.items():
         # relevent parameters
@@ -124,16 +128,16 @@ def plot_svm_predictions(X, y, svm_models):
         weight_x2 = weights[1]
         bias = model.intercept_[0]
 
-        plt.figure(figsize=(7,6))
+        plt.figure(figsize=(8,6)) # larger figure
 
         # Original data points
-        plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='green', alpha=0.7, label='Actual +1')
-        plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='blue', alpha=0.7, label='Actual -1')
+        plt.scatter(X[Y == 1, 0], X[Y == 1, 1], marker='o', color='cyan', alpha=0.7, label='Actual +1')
+        plt.scatter(X[Y == -1, 0], X[Y == -1, 1], marker='o', color='orange', alpha=0.7, label='Actual -1')
 
         # Predicted points
-        y_pred = model.predict(X)
-        plt.scatter(X[y_pred == 1, 0], X[y_pred == 1, 1], marker='+', color='red', alpha=0.5, linewidths=1.5, label='Predicted +1')
-        plt.scatter(X[y_pred == -1, 0], X[y_pred == -1, 1], marker='x', color='orange', alpha=0.8, linewidths=1, label='Predicted -1')
+        Y_pred = model.predict(X)
+        plt.scatter(X[Y_pred == 1, 0], X[Y_pred == 1, 1], marker='+', color='red', alpha=0.6, linewidths=1.5, label='Predicted +1')
+        plt.scatter(X[Y_pred == -1, 0], X[Y_pred == -1, 1], marker='x', color='green', alpha=0.7, linewidths=1, label='Predicted -1')
 
         # Decision boundary: X2 = -(bias + weight_X1*X1)/weight_x2
         x_min, x_max = X[:,0].min(), X[:,0].max()
@@ -145,21 +149,23 @@ def plot_svm_predictions(X, y, svm_models):
         plt.xlabel("X_1")
         plt.ylabel("X_2")
         plt.title(f"Linear SVM Predictions (C={C})")
-        plt.legend()
-        plt.show()
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.tight_layout()
+        #plt.show()
+        plt.savefig(f"Week2/svm_predictions_C_{C}.png")
 
-def train_log_regr_with_sq(X_sq, y):
+def train_log_regr_with_sq(X_sq, Y):
 
     # Create and train model
     model = LogisticRegression()
-    model.fit(X_sq, y)
-    
+    model.fit(X_sq, Y)
+
     # relevent parameters
     intercept = model.intercept_[0]
     thetas = model.coef_[0]
     theta_str = ", ".join(f"X{i+1} = {np.round(theta, 5)}" for i, theta in enumerate(thetas))
 
-    accuracy = model.score(X_sq, y)
+    accuracy = model.score(X_sq, Y)
 
     # Print model parameters
     print(f"Feature coefficients: {theta_str}")  # theta1, theta2, theta3, theta4
@@ -169,36 +175,55 @@ def train_log_regr_with_sq(X_sq, y):
     make_predictions(thetas)
 
     return model
-    
-def plot_sq_predictions(X, y, X_sq, model):
-    plt.figure(figsize=(7,6))  # larger figure
+
+def plot_sq_predictions(X, Y, X_sq, model):
+    plt.figure(figsize=(8,6))  # larger figure
 
     # Original data points
-    plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='green', alpha=0.7, label='Actual +1')
-    plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='blue', alpha=0.7, label='Actual -1')
+    plt.scatter(X[Y == 1, 0], X[Y == 1, 1], marker='o', color='cyan', alpha=0.7, label='Actual +1')
+    plt.scatter(X[Y == -1, 0], X[Y == -1, 1], marker='o', color='orange', alpha=0.7, label='Actual -1')
 
     # Predicted points
-    y_pred = model.predict(X_sq)
-    plt.scatter(X[y_pred == 1, 0], X[y_pred == 1, 1], marker='+', color='red', alpha=0.5, linewidths=1.5, label='Predicted +1')
-    plt.scatter(X[y_pred == -1, 0], X[y_pred == -1, 1], marker='x', color='orange', alpha=0.8, linewidths=1, label='Predicted -1')
+    Y_pred = model.predict(X_sq)
+    plt.scatter(X[Y_pred == 1, 0], X[Y_pred == 1, 1], marker='+', color='red', alpha=0.6, linewidths=1.5, label='Predicted +1')
+    plt.scatter(X[Y_pred == -1, 0], X[Y_pred == -1, 1], marker='x', color='green', alpha=0.7, linewidths=1, label='Predicted -1')
 
-    # Decision boundary: X2 = -(theta0 + theta1*X1)/theta2
-    x_min, x_max = X[:,0].min(), X[:,0].max()
-    margin = 0.05 * (x_max - x_min)  # 5% of data range as margin
-    #x_values = np.linspace(x_min - margin, x_max + margin, 100)
-    #y_values = -(intercept + theta1*x_values)/theta2
-    #plt.plot(x_values, y_values, linestyle='--', color='purple', linewidth=2, label='Decision boundary')
+    # Decision boundary: theta0 + theta1*X1 + theta2*X2 + theta3*X1^2 + theta4*X2^2 = 0
+    # Nonlinear boundary, so we need to plot a contour
+    x_min, x_max = X[:, 0].min(), X[:, 0].max()
+    y_min, y_max = X[:, 1].min(), X[:, 1].max()
+    
+    # 5% of data range as margin
+    x_margin = 0.05 * (x_max - x_min)
+
+    x_min, x_max = x_min - x_margin, x_max + x_margin
+
+    # Create a grid of points
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, 200), np.linspace(y_min, y_max, 200))
+
+    # Compute the decision on a grid
+    X_sq_grid = np.column_stack((xx.ravel(), yy.ravel(), xx.ravel()**2, yy.ravel()**2))
+    Z = model.decision_function(X_sq_grid) 
+    Z = Z.reshape(xx.shape)
+
+    # Plot decision boundary and margins
+    plt.contour(xx, yy, Z, levels=[0], colors='purple', linestyles='--', linewidths=2)
+
+    # Add a proxy line so it shows in the legend
+    plt.plot([], [], color='purple', linestyle='--', linewidth=2, label='Decision boundary')
 
     plt.xlabel("X_1")
     plt.ylabel("X_2")
     plt.title("Logistic Regression Predictions with Added Squared Features")
-    plt.legend()
-    plt.show()
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.tight_layout()
+    #plt.show()
+    plt.savefig("Week2/logistic_regression_sq_predictions.png")
 
-def baseline_accuracy(y):
-    most_common = np.sign((y == 1).sum() - (y == -1).sum())
-    baseline_pred = np.full_like(y, most_common)
-    acc = np.mean(baseline_pred == y)
+def baseline_accuracy(Y):
+    most_common = np.sign((Y == 1).sum() - (Y == -1).sum()) # +1 if more +1s, -1 if more -1s
+    baseline_pred = np.full_like(Y, most_common) # figure out which label is more common
+    acc = np.mean(baseline_pred == Y) 
     print(f"Baseline (always predicts {most_common}): {acc:.5f}")
     return acc
 
@@ -216,25 +241,25 @@ def main():
     X1 = df.iloc[:,0] # feature 1
     X2 = df.iloc[:,1] # feature 2
     X = np.column_stack((X1, X2))  # first 2 columns as 2D array
-    y = df.iloc[:, 2] # third column as labels
+    Y = df.iloc[:, 2] # third column as labels
 
-    make_plot_1A(X, y)
+    plot_given_data(X, Y)
 
     # train Logistic Regression
-    log_model = train_log_regr(X, y)
-    plot_log_regr_predictions(X, y, log_model)
+    log_model = train_log_regr(X, Y)
+    plot_log_regr_predictions(X, Y, log_model)
 
     # train SVM
-    svm_models = train_linear_svm(X, y)
-    plot_svm_predictions(X, y, svm_models)
+    svm_models = train_linear_svm(X, Y)
+    plot_svm_predictions(X, Y, svm_models)
 
     # train Logistic Regression with new features
     # Extend features for prediction
     X_sq = np.column_stack((X1, X2, X1**2, X2**2))
-    sq_model = train_log_regr_with_sq(X_sq, y)
-    plot_sq_predictions(X, y, X_sq, sq_model)
+    sq_model = train_log_regr_with_sq(X_sq, Y)
+    plot_sq_predictions(X, Y, X_sq, sq_model)
 
-    baseline_accuracy(y)
+    baseline_accuracy(Y)
 
 
 
